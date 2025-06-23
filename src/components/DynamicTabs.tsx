@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Info, Home, Settings, FileText, Users, Calendar, Mail, Phone, Globe, Database, Lock, Edit, Search, Clock, Archive, Download, List, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -237,18 +236,21 @@ const DynamicTabs = () => {
                 key={tab.index}
                 onClick={() => handleTabClick(tab.index)}
                 className={`
-                  flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200 flex flex-col items-center gap-1
+                  relative flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200
                   ${selectedTab === tab.index
                     ? 'border-orange-500 text-orange-600 bg-white'
                     : 'border-transparent text-gray-600 hover:text-orange-600 hover:border-orange-300'
                   }
                 `}
               >
-                <div className="flex items-center gap-2">
-                  {tab.index === 0 && <Info className="w-5 h-5 text-orange-600" />}
-                  {TypeIcon && <TypeIcon className="w-5 h-5 text-orange-600" />}
+                {/* Icon positioned at top-right */}
+                <div className="absolute top-1 right-1">
+                  {tab.index === 0 && <Info className="w-3 h-3 text-orange-600" />}
+                  {TypeIcon && <TypeIcon className="w-3 h-3 text-orange-600" />}
                 </div>
-                <span className="text-xs leading-tight">{tab.title}</span>
+                
+                {/* Text aligned uniformly */}
+                <span className="text-sm leading-tight">{tab.title}</span>
               </button>
             );
           })}
