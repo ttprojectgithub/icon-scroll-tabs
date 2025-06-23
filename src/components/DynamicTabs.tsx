@@ -132,9 +132,9 @@ const DynamicTabs = () => {
 
   const getColorClasses = (color?: string) => {
     const colorMap: { [key: string]: string } = {
-      orange: 'bg-orange-50 border-orange-300 text-orange-800 hover:bg-orange-100',
-      gray: 'bg-gray-50 border-gray-300 text-gray-800 hover:bg-gray-100',
-      white: 'bg-white border-gray-300 text-gray-800 hover:bg-gray-50'
+      orange: 'bg-orange-50 border-orange-300 text-orange-800 hover:bg-orange-200 hover:border-orange-400 hover:shadow-md',
+      gray: 'bg-gray-50 border-gray-300 text-gray-800 hover:bg-gray-200 hover:border-gray-400 hover:shadow-md',
+      white: 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100 hover:border-gray-400 hover:shadow-md'
     };
     return colorMap[color || 'white'] || colorMap.white;
   };
@@ -237,16 +237,18 @@ const DynamicTabs = () => {
                 key={tab.index}
                 onClick={() => handleTabClick(tab.index)}
                 className={`
-                  flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200 flex items-center gap-2
+                  flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200 flex flex-col items-center gap-1
                   ${selectedTab === tab.index
                     ? 'border-orange-500 text-orange-600 bg-white'
                     : 'border-transparent text-gray-600 hover:text-orange-600 hover:border-orange-300'
                   }
                 `}
               >
-                {tab.index === 0 && <Info className="w-4 h-4" />}
-                {TypeIcon && <TypeIcon className="w-4 h-4" />}
-                {tab.title}
+                <div className="flex items-center gap-2">
+                  {tab.index === 0 && <Info className="w-5 h-5 text-orange-600" />}
+                  {TypeIcon && <TypeIcon className="w-5 h-5 text-orange-600" />}
+                </div>
+                <span className="text-xs leading-tight">{tab.title}</span>
               </button>
             );
           })}
@@ -281,15 +283,17 @@ const DynamicTabs = () => {
                       <div
                         key={item.index}
                         className={`
-                          flex items-center gap-3 p-3 rounded-lg border transition-all duration-200
-                          hover:shadow-md cursor-pointer
+                          flex items-center gap-3 p-2 rounded-lg border transition-all duration-200
+                          cursor-pointer
                           ${getColorClasses(item.color)}
                         `}
                         onClick={() => handleTabClick(item.index)}
                       >
-                        <IconComponent className="w-5 h-5 flex-shrink-0" />
-                        {TypeIcon && <TypeIcon className="w-4 h-4 flex-shrink-0 text-orange-600" />}
-                        <span className="font-medium">{item.title}</span>
+                        <IconComponent className="w-4 h-4 flex-shrink-0" />
+                        <div className="w-4 flex justify-center">
+                          {TypeIcon ? <TypeIcon className="w-4 h-4 flex-shrink-0 text-orange-600" /> : <span className="w-4"></span>}
+                        </div>
+                        <span className="font-medium text-sm">{item.title}</span>
                       </div>
                     );
                   })}
