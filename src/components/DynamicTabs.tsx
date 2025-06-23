@@ -1,17 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Info, Home, Settings, FileText, Users, Calendar, Mail, Phone, Globe, Database, Lock, Edit, Search, Clock, Archive, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Home, Settings, FileText, Users, Calendar, Mail, Phone, Globe, Database, Lock, Edit, Search, Clock, Archive, Download, List, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface TabData {
-  id: number;
-  name: string;
+  index: number;
+  title: string;
+  type?: string;
 }
 
 interface ListItem {
-  id: number;
-  text: string;
+  index: number;
+  title: string;
+  type?: string;
   icon: React.ComponentType<any>;
   color?: string;
 }
@@ -21,63 +23,78 @@ interface TabFormData {
 }
 
 const DynamicTabs = () => {
-  // Generate 25 tabs
-  const allTabs: TabData[] = Array.from({ length: 25 }, (_, i) => ({
-    id: i + 1,
-    name: i === 0 ? 'ריכוז מידע' : `טאב ${i + 1}`
-  }));
+  // Updated tabs array according to Bank Mizrahi Tefahot requirements
+  const tabs: TabData[] = [
+    { index: 0, title: 'ריכוז מידע' },
+    { index: 1, title: 'נתונים כלליים' },
+    { index: 2, title: 'לווים' },
+    { index: 3, title: 'זכאות' },
+    { index: 4, title: 'תוכנית מימון' },
+    { index: 5, title: 'הרכב הלוואה' },
+    { index: 6, title: 'ביטחונות', type: '*' },
+    { index: 7, title: 'התחייבויות' },
+    { index: 8, title: 'סימולציות' },
+    { index: 9, title: 'השערות' },
+    { index: 10, title: 'המלצת מראיין' },
+    { index: 11, title: 'ערבים' },
+    { index: 12, title: 'צרופות וחתימות', type: '#' },
+    { index: 13, title: 'מדדי החלטה' },
+    { index: 14, title: 'צפי לסילוק מוקדם ראשון' },
+    { index: 15, title: 'הדפסת טפסים וחתימות', type: '#' },
+    { index: 16, title: 'נהנים' },
+    { index: 17, title: 'מעקב הודעות ללווה' },
+    { index: 18, title: 'הוראות תשלום' },
+    { index: 19, title: 'ביטוח חיים דיפרנציאלי', type: '*' },
+    { index: 20, title: 'אימות נתונים' },
+    { index: 21, title: 'התניות' },
+    { index: 22, title: 'הערות בתיק' },
+    { index: 23, title: 'תדריך ללווה' },
+    { index: 24, title: 'ביטוח אשראי', type: '+' },
+    { index: 25, title: 'נלווה עם-יתרה' },
+    { index: 26, title: 'ניוד משכנתה' },
+    { index: 27, title: 'פרטים משלימים', type: '+' }
+  ];
 
   const [currentGroup, setCurrentGroup] = useState(0);
   const [selectedTab, setSelectedTab] = useState<number | null>(null);
   const [rememberedTab, setRememberedTab] = useState<number | null>(null);
   const [formData, setFormData] = useState<TabFormData>({});
   const tabsPerGroup = 18;
-  const maxGroups = Math.ceil(allTabs.length / tabsPerGroup);
+  const maxGroups = Math.ceil((tabs.length - 1) / (tabsPerGroup - 1)); // -1 for the info tab
+
+  // Function to get the appropriate icon based on type
+  const getTypeIcon = (type?: string) => {
+    switch (type) {
+      case '*':
+        return Lock;
+      case '#':
+        return Star;
+      case '+':
+        return Clock;
+      default:
+        return null;
+    }
+  };
 
   // Tab list items for the "ריכוז מידע" tab
-  const tabListItems: ListItem[] = allTabs.map((tab, index) => ({
-    id: tab.id,
-    text: tab.name,
-    icon: index === 0 ? Info : 
-          index % 8 === 1 ? Users :
-          index % 8 === 2 ? Database :
-          index % 8 === 3 ? FileText :
-          index % 8 === 4 ? Calendar :
-          index % 8 === 5 ? Mail :
-          index % 8 === 6 ? Settings :
-          index % 8 === 7 ? Globe : Clock,
+  const tabListItems: ListItem[] = tabs.slice(1).map((tab, index) => ({
+    index: tab.index,
+    title: tab.title,
+    type: tab.type,
+    icon: List, // Default list icon for all items
     color: index % 3 === 0 ? 'orange' : index % 3 === 1 ? 'gray' : 'white'
   }));
 
-  // Sample list items with various icons for other tabs
-  const listItems: ListItem[] = [
-    { id: 1, text: 'פרטי לקוח ראשי', icon: Users, color: 'orange' },
-    { id: 2, text: 'מידע חשבון בנק', icon: Database, color: 'gray' },
-    { id: 3, text: 'היסטוריית עסקאות', icon: Clock, color: 'white' },
-    { id: 4, text: 'מסמכים משפטיים', icon: FileText, color: 'orange' },
-    { id: 5, text: 'פגישות מתוזמנות', icon: Calendar, color: 'gray' },
-    { id: 6, text: 'התכתבות אימייל', icon: Mail, color: 'white' },
-    { id: 7, text: 'פרטי קשר', icon: Phone, color: 'orange' },
-    { id: 8, text: 'אתר אינטרנט', icon: Globe, color: 'gray' },
-    { id: 9, text: 'הגדרות אבטחה', icon: Lock, color: 'white' },
-    { id: 10, text: 'עריכת פרופיל', icon: Edit, color: 'orange' },
-    { id: 11, text: 'חיפוש מתקדם', icon: Search, color: 'gray' },
-    { id: 12, text: 'ארכיון מסמכים', icon: Archive, color: 'white' },
-    { id: 13, text: 'הורדות קבצים', icon: Download, color: 'orange' },
-    { id: 14, text: 'דוח סטטיסטיקות', icon: FileText, color: 'gray' },
-    { id: 15, text: 'ניהול משתמשים', icon: Users, color: 'white' }
-  ];
-
   const getVisibleTabs = () => {
-    const infoTab = allTabs[0]; // ריכוז מידע - always visible
-    const startIndex = currentGroup * tabsPerGroup + 1;
-    let regularTabs = allTabs.slice(startIndex, startIndex + tabsPerGroup - 1);
+    const infoTab = tabs[0]; // ריכוז מידע - always visible
+    const startIndex = currentGroup * (tabsPerGroup - 1) + 1;
+    let regularTabs = tabs.slice(startIndex, startIndex + tabsPerGroup - 1);
     
     // If we have a remembered tab and it's not in current view, insert it as second tab
-    if (rememberedTab && rememberedTab !== 1) {
-      const isRememberedInView = regularTabs.some(tab => tab.id === rememberedTab);
+    if (rememberedTab && rememberedTab !== 0) {
+      const isRememberedInView = regularTabs.some(tab => tab.index === rememberedTab);
       if (!isRememberedInView) {
-        const rememberedTabData = allTabs.find(tab => tab.id === rememberedTab);
+        const rememberedTabData = tabs.find(tab => tab.index === rememberedTab);
         if (rememberedTabData) {
           regularTabs = [rememberedTabData, ...regularTabs.slice(0, tabsPerGroup - 2)];
         }
@@ -87,9 +104,9 @@ const DynamicTabs = () => {
     return [infoTab, ...regularTabs];
   };
 
-  const handleTabClick = (tabId: number) => {
-    setSelectedTab(tabId);
-    setRememberedTab(tabId);
+  const handleTabClick = (tabIndex: number) => {
+    setSelectedTab(tabIndex);
+    setRememberedTab(tabIndex);
   };
 
   const handleNavigation = (direction: 'prev' | 'next') => {
@@ -100,16 +117,16 @@ const DynamicTabs = () => {
     }
   };
 
-  const handleFormChange = (tabId: number, field: string, value: string) => {
-    const key = `${tabId}-${field}`;
+  const handleFormChange = (tabIndex: number, field: string, value: string) => {
+    const key = `${tabIndex}-${field}`;
     setFormData(prev => ({
       ...prev,
       [key]: value
     }));
   };
 
-  const getFormValue = (tabId: number, field: string) => {
-    const key = `${tabId}-${field}`;
+  const getFormValue = (tabIndex: number, field: string) => {
+    const key = `${tabIndex}-${field}`;
     return formData[key] || '';
   };
 
@@ -122,56 +139,57 @@ const DynamicTabs = () => {
     return colorMap[color || 'white'] || colorMap.white;
   };
 
-  const renderForm = (tabId: number) => {
+  const renderForm = (tabIndex: number) => {
+    const currentTab = tabs.find(t => t.index === tabIndex);
     return (
       <div className="space-y-6 p-4 bg-white rounded-lg border border-gray-200">
-        <h4 className="text-lg font-semibold text-gray-800 mb-4">טופס {allTabs.find(t => t.id === tabId)?.name}</h4>
+        <h4 className="text-lg font-semibold text-gray-800 mb-4">טופס {currentTab?.title}</h4>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor={`name-${tabId}`} className="text-right">שם מלא</Label>
+            <Label htmlFor={`name-${tabIndex}`} className="text-right">שם מלא</Label>
             <Input
-              id={`name-${tabId}`}
+              id={`name-${tabIndex}`}
               placeholder="הכנס שם מלא"
-              value={getFormValue(tabId, 'name')}
-              onChange={(e) => handleFormChange(tabId, 'name', e.target.value)}
+              value={getFormValue(tabIndex, 'name')}
+              onChange={(e) => handleFormChange(tabIndex, 'name', e.target.value)}
               className="text-right"
               dir="rtl"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor={`email-${tabId}`} className="text-right">כתובת אימייל</Label>
+            <Label htmlFor={`email-${tabIndex}`} className="text-right">כתובת אימייל</Label>
             <Input
-              id={`email-${tabId}`}
+              id={`email-${tabIndex}`}
               type="email"
               placeholder="הכנס כתובת אימייל"
-              value={getFormValue(tabId, 'email')}
-              onChange={(e) => handleFormChange(tabId, 'email', e.target.value)}
+              value={getFormValue(tabIndex, 'email')}
+              onChange={(e) => handleFormChange(tabIndex, 'email', e.target.value)}
               className="text-right"
               dir="rtl"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor={`phone-${tabId}`} className="text-right">טלפון</Label>
+            <Label htmlFor={`phone-${tabIndex}`} className="text-right">טלפון</Label>
             <Input
-              id={`phone-${tabId}`}
+              id={`phone-${tabIndex}`}
               placeholder="הכנס מספר טלפון"
-              value={getFormValue(tabId, 'phone')}
-              onChange={(e) => handleFormChange(tabId, 'phone', e.target.value)}
+              value={getFormValue(tabIndex, 'phone')}
+              onChange={(e) => handleFormChange(tabIndex, 'phone', e.target.value)}
               className="text-right"
               dir="rtl"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor={`company-${tabId}`} className="text-right">חברה</Label>
+            <Label htmlFor={`company-${tabIndex}`} className="text-right">חברה</Label>
             <Input
-              id={`company-${tabId}`}
+              id={`company-${tabIndex}`}
               placeholder="שם החברה"
-              value={getFormValue(tabId, 'company')}
-              onChange={(e) => handleFormChange(tabId, 'company', e.target.value)}
+              value={getFormValue(tabIndex, 'company')}
+              onChange={(e) => handleFormChange(tabIndex, 'company', e.target.value)}
               className="text-right"
               dir="rtl"
             />
@@ -179,12 +197,12 @@ const DynamicTabs = () => {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor={`notes-${tabId}`} className="text-right">הערות</Label>
+          <Label htmlFor={`notes-${tabIndex}`} className="text-right">הערות</Label>
           <textarea
-            id={`notes-${tabId}`}
+            id={`notes-${tabIndex}`}
             placeholder="הערות נוספות..."
-            value={getFormValue(tabId, 'notes')}
-            onChange={(e) => handleFormChange(tabId, 'notes', e.target.value)}
+            value={getFormValue(tabIndex, 'notes')}
+            onChange={(e) => handleFormChange(tabIndex, 'notes', e.target.value)}
             className="w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md text-right resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             dir="rtl"
           />
@@ -212,23 +230,26 @@ const DynamicTabs = () => {
 
         {/* Tabs */}
         <div className="flex-1 flex overflow-hidden">
-          {getVisibleTabs().map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(tab.id)}
-              className={`
-                flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200
-                ${selectedTab === tab.id
-                  ? 'border-orange-500 text-orange-600 bg-white'
-                  : 'border-transparent text-gray-600 hover:text-orange-600 hover:border-orange-300'
-                }
-                ${tab.id === 1 ? 'flex items-center gap-2' : ''}
-              `}
-            >
-              {tab.id === 1 && <Info className="w-4 h-4" />}
-              {tab.name}
-            </button>
-          ))}
+          {getVisibleTabs().map((tab) => {
+            const TypeIcon = getTypeIcon(tab.type);
+            return (
+              <button
+                key={tab.index}
+                onClick={() => handleTabClick(tab.index)}
+                className={`
+                  flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-all duration-200 flex items-center gap-2
+                  ${selectedTab === tab.index
+                    ? 'border-orange-500 text-orange-600 bg-white'
+                    : 'border-transparent text-gray-600 hover:text-orange-600 hover:border-orange-300'
+                  }
+                `}
+              >
+                {tab.index === 0 && <Info className="w-4 h-4" />}
+                {TypeIcon && <TypeIcon className="w-4 h-4" />}
+                {tab.title}
+              </button>
+            );
+          })}
         </div>
 
         {/* Left Arrow */}
@@ -243,30 +264,32 @@ const DynamicTabs = () => {
 
       {/* Content Area */}
       <div className="p-6">
-        {selectedTab ? (
+        {selectedTab !== null ? (
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              תוכן {allTabs.find(t => t.id === selectedTab)?.name}
+              תוכן {tabs.find(t => t.index === selectedTab)?.title}
             </h3>
             
-            {selectedTab === 1 ? (
+            {selectedTab === 0 ? (
               // Special content for "ריכוז מידע" - show tab list
               <div className="max-h-96 overflow-y-auto border border-gray-300 rounded-lg">
                 <div className="space-y-1 p-4">
                   {tabListItems.map((item) => {
                     const IconComponent = item.icon;
+                    const TypeIcon = getTypeIcon(item.type);
                     return (
                       <div
-                        key={item.id}
+                        key={item.index}
                         className={`
                           flex items-center gap-3 p-3 rounded-lg border transition-all duration-200
                           hover:shadow-md cursor-pointer
                           ${getColorClasses(item.color)}
                         `}
-                        onClick={() => handleTabClick(item.id)}
+                        onClick={() => handleTabClick(item.index)}
                       >
                         <IconComponent className="w-5 h-5 flex-shrink-0" />
-                        <span className="font-medium">{item.text}</span>
+                        {TypeIcon && <TypeIcon className="w-4 h-4 flex-shrink-0 text-orange-600" />}
+                        <span className="font-medium">{item.title}</span>
                       </div>
                     );
                   })}
@@ -288,9 +311,9 @@ const DynamicTabs = () => {
       {/* Status Bar */}
       <div className="px-6 py-3 bg-gray-100 border-t border-gray-300 text-sm text-gray-600 flex justify-between items-center">
         <span>קבוצה {currentGroup + 1} מתוך {maxGroups}</span>
-        {rememberedTab && (
+        {rememberedTab !== null && (
           <span className="text-orange-600">
-            טאב זכור: {allTabs.find(t => t.id === rememberedTab)?.name}
+            טאב זכור: {tabs.find(t => t.index === rememberedTab)?.title}
           </span>
         )}
       </div>
